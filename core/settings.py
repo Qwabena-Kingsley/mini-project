@@ -78,11 +78,6 @@ import sys
 # =========================================
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-# Print to Railway logs so we can see what is happening
-print(f"DEBUG DB: DATABASE_URL found = {bool(DATABASE_URL)}", file=sys.stderr)
-print(f"DEBUG DB: DB_NAME = {os.environ.get('DB_NAME', 'NOT SET')}", file=sys.stderr)
-print(f"DEBUG DB: DB_HOST = {os.environ.get('DB_HOST', 'NOT SET')}", file=sys.stderr)
-
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
@@ -95,9 +90,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE':   'django.db.backends.postgresql',
-            'NAME':     os.environ.get('DB_NAME'),
-            'USER':     os.environ.get('DB_USER'),
-            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'NAME':     os.environ.get('DB_NAME', 'Embedded'),
+            'USER':     os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
             'HOST':     os.environ.get('DB_HOST', 'localhost'),
             'PORT':     os.environ.get('DB_PORT', '5433'),
         }
