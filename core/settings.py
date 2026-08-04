@@ -71,10 +71,19 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # =========================================
 # DATABASE
 # =========================================
+import sys
+
+# =========================================
+# DATABASE
+# =========================================
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
+# Print to Railway logs so we can see what is happening
+print(f"DEBUG DB: DATABASE_URL found = {bool(DATABASE_URL)}", file=sys.stderr)
+print(f"DEBUG DB: DB_NAME = {os.environ.get('DB_NAME', 'NOT SET')}", file=sys.stderr)
+print(f"DEBUG DB: DB_HOST = {os.environ.get('DB_HOST', 'NOT SET')}", file=sys.stderr)
+
 if DATABASE_URL:
-    # Production — Railway / Render
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
@@ -83,7 +92,6 @@ if DATABASE_URL:
         )
     }
 else:
-    # Local development
     DATABASES = {
         'default': {
             'ENGINE':   'django.db.backends.postgresql',
@@ -94,7 +102,6 @@ else:
             'PORT':     os.environ.get('DB_PORT', '5433'),
         }
     }
-
 # =========================================
 # DRF
 # =========================================
