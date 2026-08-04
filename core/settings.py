@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     # Third party
     'rest_framework',
     'corsheaders',
- 'django_celery_beat',  
     # Your apps
     'sensors',
 ]
@@ -144,30 +143,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # =========================================
-# CELERY
+# CELERY — only active if Redis is available
 # =========================================
-CELERY_BROKER_URL          = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND      = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_TIMEZONE            = 'UTC'
-CELERY_BEAT_SCHEDULER      = 'django_celery_beat.schedulers:DatabaseScheduler'
+REDIS_URL = os.environ.get('REDIS_URL', None)
 
-CELERY_BEAT_SCHEDULE = {
+if REDIS_URL:
+    CELERY_BROKER_URL     = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
+    CELERY_TIMEZONE       = 'UTC'
+    CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
-    # Runs every day at midnight UTC
-    # Computes yesterday's aggregates and saves to daily_summary
-    'generate-daily-summary': {
-        'task':     'sensors.tasks.generate_daily_summary',
-        'schedule': timedelta(days=1),                        # import timedelta at top of settings
-    },
-
-    # Runs every 30 minutes
-    # Checks for flatlined sensors (no new readings)
-    'check-sensor-health': {
-        'task':     'sensors.tasks.check_sensor_health',
-        'schedule': timedelta(minutes=30),
-    },
-}
-
+    CELERY_BEAT_SCHEDULE = {
+        'generate-daily-summary': {
+            'task':     'sensors.tasks.generate_daily_summary',
+            'schedule': timedelta(days=1),
+        },
+        'check-sensor-health': {
+            'task':     'sensors.tasks.check_sensor_health',
+            'schedule': timedelta(minutes=30),
+        },
+    }
 # =========================================
 # PRODUCTION
 # =========================================
