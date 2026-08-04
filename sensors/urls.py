@@ -28,4 +28,8 @@ urlpatterns = [
     #qr code
      path('devices/<uuid:device_id>/qrcode/', views.device_qrcode, name='device-qrcode'),  # ← new
 
+
+     # Onboarding QR code — for printing on physical devices
+    path('onboarding/qrcode/', views.onboarding_qrcode, name='onboarding-qrcode'),
+
 ]

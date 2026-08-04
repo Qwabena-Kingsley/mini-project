@@ -596,3 +596,32 @@ def device_qrcode(request, device_id):
 
     # Return as a raw PNG HTTP response — not JSON
     return HttpResponse(png_bytes, content_type='image/png')
+
+
+@api_view(['GET'])
+def onboarding_qrcode(request):
+    """
+    GET /api/onboarding/qrcode/?mac=AA:BB:CC:DD:EE:FF
+
+    Generates a QR code that encodes the frontend onboarding URL
+    with the MAC address pre-filled.
+
+    This QR code is printed and stuck on the physical ESP32 device.
+    User scans it → frontend opens → MAC is pre-filled →
+    user just picks room name and type → done.
+    """
+    mac_address = request.query_params.get('mac', '').strip().upper()
+
+    if not mac_address:
+        return Response(
+            {"error": "mac query parameter is required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Build the frontend onboarding URL with MAC pre-filled
+    frontend_url = f"{settings.FRONTEND_BASE_URL}/onboarding?mac={mac_address}"
+
+    from .utils import generate_qr_png
+    png_bytes = generate_qr_png(frontend_url)
+
+    return HttpResponse(png_bytes, content_type='image/png')
